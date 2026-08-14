@@ -68,7 +68,9 @@ describe("App", () => {
     fireEvent.click(pinButton);
 
     await waitFor(() => expect(window.desktop?.setAlwaysOnTop).toHaveBeenCalledWith(false));
-    expect(pinButton).toHaveAttribute("aria-pressed", "false");
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "置顶" })).toHaveAttribute("aria-pressed", "false");
+    });
   });
 
   it("requires confirmation before deleting a note", async () => {
