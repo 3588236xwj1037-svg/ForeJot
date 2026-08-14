@@ -1,0 +1,32 @@
+name: Feature request
+description: 建议新的功能或工作流改进
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 使用场景
+      description: 请说明当前遇到的问题，而不只是描述一个按钮或页面。
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 其他可选方案
+
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私确认
+      options:
+        - label: 我没有提交真实便签、密钥或其他私人数据。
+          required: true

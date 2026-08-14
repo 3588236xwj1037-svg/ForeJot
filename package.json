@@ -1,0 +1,86 @@
+{
+  "name": "floating-notes",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A local-first always-on-top Markdown notes app for Windows.",
+  "license": "MIT",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron .\"",
+    "dev:web": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "check:public": "node scripts/check-publication.cjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "dist": "npm run build && electron-builder --win nsis",
+    "qa:formula": "npm run build && electron scripts/qa-formula.cjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "6.0.5",
+    "katex": "0.16.47",
+    "lucide-react": "1.28.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5",
+    "vite": "8.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "7.0.0",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "26.1.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "concurrently": "10.0.4",
+    "electron": "43.3.0",
+    "electron-builder": "26.15.3",
+    "jsdom": "27.4.0",
+    "resedit": "1.7.2",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10",
+    "wait-on": "9.1.0"
+  },
+  "build": {
+    "appId": "cn.fujian.desktopnotes",
+    "productName": "ForeJot",
+    "copyright": "Copyright © 2026",
+    "afterPack": "scripts/clear-windows-company.cjs",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "build/icon.ico",
+        "to": "desktop-icon.ico"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "ForeJot",
+      "displayLanguageSelector": true,
+      "installerLanguages": [
+        "en_US",
+        "zh_CN"
+      ],
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+name: Bug report
+description: 报告可复现的软件问题
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请勿上传真实便签、`notes.json`、访问令牌或包含私人内容的截图。请使用虚构数据复现。
+
+  - type: input
+    id: version
+    attributes:
+      label: 驻笺版本
+      placeholder: 例如 0.2.30
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows 版本
+      placeholder: 例如 Windows 11 24H2
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 请提供最小、完整、可重复的步骤。
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私确认
+      options:
+        - label: 我已确认内容中不包含真实便签、密钥或其他私人数据。
+          required: true

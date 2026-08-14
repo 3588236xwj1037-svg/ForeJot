@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build and test output
+dist/
+release/
+release-v*/
+output/
+tmp/
+.artifacts/
+coverage/
+*.log
+*.tsbuildinfo
+*.blockmap
+*.asar
+*.exe
+*.msi
+*.zip
+build/icon-test.ico
+
+# Local notes, backups, and Electron user data
+notes.json
+**/notes.json
+floating-notes/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
