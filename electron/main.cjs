@@ -10,7 +10,8 @@ const {
 const APP_USER_MODEL_ID = "cn.fujian.desktopnotes";
 const INSTALL_LANGUAGE_REGISTRY_KEY = "Software\\cn.fujian.desktopnotes";
 const USER_DATA_DIRECTORY = "floating-notes";
-const SUPPORTED_APP_FONTS = new Set(["simsun", "kaiti", "fangsong", "simhei", "times", "segoe", "arial", "verdana"]);
+const SUPPORTED_CHINESE_FONTS = new Set(["simsun", "kaiti", "fangsong", "simhei"]);
+const SUPPORTED_ENGLISH_FONTS = new Set(["times", "segoe", "arial", "verdana"]);
 let mainWindow;
 let tray;
 let isQuitting = false;
@@ -64,13 +65,13 @@ function defaultLanguage(selection) {
   }
 }
 
-function normalizeFontFamily(value, fallback) {
+function normalizeChineseFont(value, fallback) {
   if (value === "system") return "kaiti";
-  return SUPPORTED_APP_FONTS.has(value) ? value : fallback;
+  return SUPPORTED_CHINESE_FONTS.has(value) ? value : fallback;
 }
 
-function fontFamilySource(settings) {
-  return settings?.fontFamilySource === "user" ? "user" : "installer";
+function normalizeEnglishFont(value, fallback) {
+  return SUPPORTED_ENGLISH_FONTS.has(value) ? value : fallback;
 }
 
 function createDefaultState() {
@@ -86,8 +87,8 @@ function createDefaultState() {
       sidebarCollapsed: false,
       sidebarWidth: 294,
       opacity: 92,
-      fontFamily: language === "en" ? "times" : "kaiti",
-      fontFamilySource: "installer",
+      chineseFontFamily: "kaiti",
+      englishFontFamily: "times",
       deleteWithBackspace: true,
       confirmBeforeDelete: true,
       exportFormat: "pdf",
@@ -139,11 +140,19 @@ function readState() {
     const savedSettings = saved.settings && typeof saved.settings === "object" && !Array.isArray(saved.settings)
       ? saved.settings
       : {};
-    const normalizedFontFamily = normalizeFontFamily(savedSettings.fontFamily, defaultState.settings.fontFamily);
-    const savedFontFamilySource = fontFamilySource(savedSettings);
-    const needsFontMigration = savedSettings.fontFamily === "system"
-      || !SUPPORTED_APP_FONTS.has(savedSettings.fontFamily)
-      || !["installer", "user"].includes(savedSettings.fontFamilySource);
+    const { fontFamily: legacyFontFamily, fontFamilySource: _legacyFontFamilySource, ...currentSettings } = savedSettings;
+    const normalizedChineseFont = normalizeChineseFont(
+      savedSettings.chineseFontFamily ?? legacyFontFamily,
+      defaultState.settings.chineseFontFamily,
+    );
+    const normalizedEnglishFont = normalizeEnglishFont(
+      savedSettings.englishFontFamily ?? legacyFontFamily,
+      defaultState.settings.englishFontFamily,
+    );
+    const needsFontMigration = Object.hasOwn(savedSettings, "fontFamily")
+      || Object.hasOwn(savedSettings, "fontFamilySource")
+      || !SUPPORTED_CHINESE_FONTS.has(savedSettings.chineseFontFamily)
+      || !SUPPORTED_ENGLISH_FONTS.has(savedSettings.englishFontFamily);
     const shouldApplyInstallerLanguage = savedSettings.installerLanguage !== defaultState.settings.installerLanguage
       || savedSettings.installerLanguageGeneration !== defaultState.settings.installerLanguageGeneration;
     const normalized = {
@@ -155,7 +164,7 @@ function readState() {
         : {},
       settings: {
         ...defaultState.settings,
-        ...savedSettings,
+        ...currentSettings,
         ...(shouldApplyInstallerLanguage
           ? {
             uiLanguage: defaultState.settings.uiLanguage,
@@ -163,15 +172,15 @@ function readState() {
             installerLanguage: defaultState.settings.installerLanguage,
             installerLanguageGeneration: defaultState.settings.installerLanguageGeneration,
             // The installer language determines both first-run defaults, even after a prior installation.
-            fontFamily: defaultState.settings.fontFamily,
-            fontFamilySource: "installer",
+            chineseFontFamily: defaultState.settings.chineseFontFamily,
+            englishFontFamily: defaultState.settings.englishFontFamily,
           }
           : {
             uiLanguageSource: savedSettings.uiLanguageSource === "user" ? "user" : "installer",
             installerLanguage: defaultState.settings.installerLanguage,
             installerLanguageGeneration: defaultState.settings.installerLanguageGeneration,
-            fontFamily: normalizedFontFamily,
-            fontFamilySource: savedFontFamilySource,
+            chineseFontFamily: normalizedChineseFont,
+            englishFontFamily: normalizedEnglishFont,
           }),
       },
     };

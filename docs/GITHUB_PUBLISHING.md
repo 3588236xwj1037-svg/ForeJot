@@ -110,12 +110,12 @@ GitHub 要求认证时，使用浏览器登录或官方 GitHub CLI 完成认证�
 
 当前 `.github/workflows/release.yml` 会在推送 `v*` 标签时执行：安装锁定依赖、检查公开文件、运行测试、验证标签和 `package.json` 版本一致、构建 Windows 安装包，然后创建 GitHub Release。它只上传 `.exe`，不会上传 `.blockmap`。
 
-以当前 `1.0.0` 为例：
+以当前 `1.0.1` 为例：
 
 ```powershell
-# package.json 的 version 必须是 1.0.0，且所有版本修改已经提交
-git tag v1.0.0
-git push origin v1.0.0
+# package.json 的 version 必须是 1.0.1，且所有版本修改已经提交
+git tag v1.0.1
+git push origin v1.0.1
 ```
 
 然后打开仓库的 **Actions** 页面，确认 `Release` 工作流全部成功；再打开 **Releases** 下载该工作流生成的安装包测试。不要把本机的 `.exe` 提交到 `main`，也不要把包含私人数据的备份作为 Release Asset 上传。
@@ -150,20 +150,20 @@ Get-FileHash "release\ForeJot Setup <版本号>.exe" -Algorithm SHA256
 Get-FileHash "<下载目录>\ForeJot Setup <版本号>.exe" -Algorithm SHA256
 ```
 
-正式发布的 `1.0.0` 安装包 SHA-256 应写入 Release 正文和 `docs/RELEASE_NOTES_1.0.0.md`：
+正式发布的 `1.0.1` 安装包 SHA-256 应写入 Release 正文和 `docs/RELEASE_NOTES_1.0.1.md`：
 
 ```text
-F398EDC767B25D26D36EFE2C101AA8E27D54C89A1047A8D3B7E836E13DAAC334
+3C2AA0DC9204D9B3F2F2D1CD0CF793B235202EAFDD05028C97701EC5872B2A2B
 ```
 
 只发布由对应提交构建并经过实际安装测试的安装包。可选择将安装包提交至 VirusTotal 扫描；这有助于发现异常，但不替代你自己的安装、启动和数据回归测试。当前安装包未使用商业代码签名，Windows SmartScreen 可能提示未知发布者。若要改善这个提示，需要购买受信任的 Windows 代码签名证书或配置 Azure Trusted Signing；GitHub 不能替代代码签名。
 
 ## 9. 后续版本
 
-每次发布先修改版本号、更新 `CHANGELOG.md` 和对应发布说明。下一个补丁版本示例为 `1.0.3`：
+每次发布先修改版本号、更新 `CHANGELOG.md` 和对应发布说明。下一个补丁版本示例为 `1.0.2`：
 
 ```powershell
-npm version 1.0.3 --no-git-tag-version
+npm version 1.0.2 --no-git-tag-version
 npm run check:public
 npm test
 npm run build

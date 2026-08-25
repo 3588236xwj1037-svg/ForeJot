@@ -1,6 +1,6 @@
 {
   "name": "floating-notes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "A local-first always-on-top Markdown notes app for Windows.",

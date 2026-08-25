@@ -21,7 +21,7 @@ const state = {
   notes: [{ id: "formula-check", title: "公式关系符检查", body: formula, color: "paper", createdAt: 1, updatedAt: 1 }],
   attachments: {},
   selectedId: "formula-check",
-  settings: { alwaysOnTop: false, launchAtLogin: false, sidebarCollapsed: false, sidebarWidth: 294, opacity: 100, fontFamily: "kaiti", fontFamilySource: "installer", deleteWithBackspace: true, confirmBeforeDelete: true, exportFormat: "pdf", uiLanguage: "zh" },
+  settings: { alwaysOnTop: false, launchAtLogin: false, sidebarCollapsed: false, sidebarWidth: 294, opacity: 100, chineseFontFamily: "kaiti", englishFontFamily: "times", deleteWithBackspace: true, confirmBeforeDelete: true, exportFormat: "pdf", uiLanguage: "zh" },
 };
 
 fs.mkdirSync(path.dirname(output), { recursive: true });

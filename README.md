@@ -2,7 +2,7 @@
 
 > A local-first, always-on-top Markdown note app for Windows. Keep the note you are actively using visible, editable, and on your computer.
 
-[中文说明](README.zh-CN.md) | [Release notes](docs/RELEASE_NOTES_1.0.0.md) | [中文发布说明](docs/RELEASE_NOTES_1.0.0.zh-CN.md)
+[中文说明](README.zh-CN.md) | [Release notes](docs/RELEASE_NOTES_1.0.1.md) | [中文发布说明](docs/RELEASE_NOTES_1.0.1.zh-CN.md)
 
 ![ForeJot interface](docs/screenshot.png)
 
@@ -37,7 +37,7 @@ ForeJot does not publish a cross-product memory benchmark. Electron memory use d
 
 ## Quick start
 
-1. Download `ForeJot Setup 1.0.0.exe` from [GitHub Releases](../../releases/latest) and run it.
+1. Download `ForeJot Setup 1.0.1.exe` from [GitHub Releases](../../releases/latest) and run it.
 2. Choose English or Chinese in the installer. The selection sets the initial app language and default font.
 3. Select **New note**, or press <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>N</kbd> from anywhere in Windows.
 4. Write Markdown in **Edit** and switch to **Preview** when you want to review the rendered note.
@@ -143,11 +143,11 @@ Paste an image from the clipboard or choose the image button. ForeJot stores it 
 
 ## Language and installation
 
-Download `ForeJot Setup 1.0.0.exe` from [GitHub Releases](../../releases/latest). Before installation begins, the installer asks whether to install the English or Chinese edition.
+Download `ForeJot Setup 1.0.1.exe` from [GitHub Releases](../../releases/latest). Before installation begins, the installer asks whether to install the English or Chinese edition.
 
 - On Chinese Windows, Chinese is selected by default and the app opens as **驻笺**.
 - On other Windows languages, English is selected by default and the app opens as **ForeJot**.
-- The installer selection sets the first-run language and default font: Chinese uses KaiTi; English uses Times New Roman.
+- Chinese and English fonts are independent in both editions: Chinese text defaults to KaiTi and English text defaults to Times New Roman. Changing one does not change the other.
 - In the app, **Preferences > Interface language** always lets the user switch between English and Chinese. Existing user choices are preserved on upgrades.
 
 Requirements: 64-bit Windows 10 or Windows 11. The installer is not currently signed with a commercial code-signing certificate, so Windows SmartScreen may identify an unknown publisher. Download only from the project release page and compare the release checksum.

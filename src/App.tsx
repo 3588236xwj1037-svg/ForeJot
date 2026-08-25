@@ -54,7 +54,7 @@ import {
   X,
 } from "lucide-react";
 import "katex/dist/katex.min.css";
-import type { AppFont, AppState, BodyFontSize, ExportFormat, ExportRequest, MarkdownImportResult, Note, NoteAttachment, UiLanguage } from "./types";
+import type { AppFont, AppState, BodyFontSize, ChineseFont, EnglishFont, ExportFormat, ExportRequest, MarkdownImportResult, Note, NoteAttachment, UiLanguage } from "./types";
 import { katexExportStyles } from "./katexExportStyles";
 
 const SIDEBAR_MIN = 150;
@@ -63,19 +63,35 @@ const NOTE_ASSET_PREFIX = "note-asset:";
 const FIND_PANEL_MIN_WIDTH = 134;
 const FIND_PANEL_MIN_HEIGHT = 104;
 
-const fonts: { id: AppFont; label: string; labelEn: string; family: string; inlineFamily: string }[] = [
-  { id: "kaiti", label: "楷体", labelEn: "KaiTi", family: 'KaiTi, "楷体", serif', inlineFamily: "楷体" },
-  { id: "simsun", label: "宋体", labelEn: "SimSun", family: 'SimSun, "宋体", serif', inlineFamily: "宋体" },
-  { id: "fangsong", label: "仿宋", labelEn: "FangSong", family: 'FangSong, "仿宋", serif', inlineFamily: "仿宋" },
-  { id: "simhei", label: "黑体", labelEn: "SimHei", family: 'SimHei, "黑体", sans-serif', inlineFamily: "黑体" },
-  { id: "times", label: "Times New Roman", labelEn: "Times New Roman", family: '"Times New Roman", SimSun, serif', inlineFamily: "Times New Roman" },
-  { id: "segoe", label: "Segoe UI", labelEn: "Segoe UI", family: '"Segoe UI", SimHei, sans-serif', inlineFamily: "Segoe UI" },
-  { id: "arial", label: "Arial", labelEn: "Arial", family: 'Arial, SimHei, sans-serif', inlineFamily: "Arial" },
-  { id: "verdana", label: "Verdana", labelEn: "Verdana", family: 'Verdana, SimHei, sans-serif', inlineFamily: "Verdana" },
+type FontDefinition<T extends AppFont = AppFont> = {
+  id: T;
+  label: string;
+  labelEn: string;
+  family: string;
+  inlineFamily: string;
+  fallback: "serif" | "sans-serif";
+};
+
+const chineseFonts: FontDefinition<ChineseFont>[] = [
+  { id: "kaiti", label: "楷体", labelEn: "KaiTi", family: 'KaiTi, "楷体"', inlineFamily: "楷体", fallback: "serif" },
+  { id: "simsun", label: "宋体", labelEn: "SimSun", family: 'SimSun, "宋体"', inlineFamily: "宋体", fallback: "serif" },
+  { id: "fangsong", label: "仿宋", labelEn: "FangSong", family: 'FangSong, "仿宋"', inlineFamily: "仿宋", fallback: "serif" },
+  { id: "simhei", label: "黑体", labelEn: "SimHei", family: 'SimHei, "黑体"', inlineFamily: "黑体", fallback: "sans-serif" },
 ];
 
-function contentFontFamily(baseFamily: string) {
-  return baseFamily;
+const englishFonts: FontDefinition<EnglishFont>[] = [
+  { id: "times", label: "Times New Roman", labelEn: "Times New Roman", family: '"Times New Roman"', inlineFamily: "Times New Roman", fallback: "serif" },
+  { id: "segoe", label: "Segoe UI", labelEn: "Segoe UI", family: '"Segoe UI"', inlineFamily: "Segoe UI", fallback: "sans-serif" },
+  { id: "arial", label: "Arial", labelEn: "Arial", family: "Arial", inlineFamily: "Arial", fallback: "sans-serif" },
+  { id: "verdana", label: "Verdana", labelEn: "Verdana", family: "Verdana", inlineFamily: "Verdana", fallback: "sans-serif" },
+];
+
+const fonts: FontDefinition[] = [...chineseFonts, ...englishFonts];
+
+function combinedFontFamily(chineseFont: ChineseFont, englishFont: EnglishFont) {
+  const chinese = chineseFonts.find((font) => font.id === chineseFont) ?? chineseFonts[0];
+  const english = englishFonts.find((font) => font.id === englishFont) ?? englishFonts[0];
+  return `${english.family}, ${chinese.family}, ${english.fallback}`;
 }
 
 const bodyFontSizes: { id: BodyFontSize; label: string; labelEn: string; value: string }[] = [
@@ -107,8 +123,8 @@ const initialState: AppState = {
     sidebarCollapsed: false,
     sidebarWidth: 294,
     opacity: 92,
-    fontFamily: "kaiti",
-    fontFamilySource: "installer",
+    chineseFontFamily: "kaiti",
+    englishFontFamily: "times",
     deleteWithBackspace: true,
     confirmBeforeDelete: true,
     exportFormat: "pdf",
@@ -148,9 +164,13 @@ function inlineFontName(fontFamily: string) {
   return null;
 }
 
-function normalizeFontFamily(value: unknown, fallback: AppFont): AppFont {
+function normalizeChineseFont(value: unknown, fallback: ChineseFont): ChineseFont {
   if (value === "system") return "kaiti";
-  return fonts.find((font) => font.id === value)?.id ?? fallback;
+  return chineseFonts.find((font) => font.id === value)?.id ?? fallback;
+}
+
+function normalizeEnglishFont(value: unknown, fallback: EnglishFont): EnglishFont {
+  return englishFonts.find((font) => font.id === value)?.id ?? fallback;
 }
 
 function compactLegacyFontMarkup(markdown: string) {
@@ -236,7 +256,11 @@ function normalizeState(saved: AppState | null | undefined): AppState {
     }))
     : [];
   const { notes, attachments } = migrateInlineImages(normalizedNotes, saved?.attachments);
-  const savedSettings = saved?.settings ?? initialState.settings;
+  const savedSettings = (saved?.settings ?? initialState.settings) as AppState["settings"] & {
+    fontFamily?: unknown;
+    fontFamilySource?: unknown;
+  };
+  const { fontFamily: legacyFontFamily, fontFamilySource: _legacyFontFamilySource, ...currentSettings } = savedSettings;
   const sidebarWidth = Number(savedSettings.sidebarWidth);
   const exportFormat = exportFormats.some((item) => item.id === savedSettings.exportFormat)
     ? savedSettings.exportFormat
@@ -246,7 +270,6 @@ function normalizeState(saved: AppState | null | undefined): AppState {
     ? saved?.selectedId ?? null
     : notes[0]?.id ?? null;
   const installerLanguage = savedSettings.installerLanguage === "en" ? "en" : "zh";
-  const defaultFont = installerLanguage === "en" ? "times" : "kaiti";
 
   return {
     notes,
@@ -254,7 +277,7 @@ function normalizeState(saved: AppState | null | undefined): AppState {
     selectedId,
     settings: {
       ...initialState.settings,
-      ...savedSettings,
+      ...currentSettings,
       sidebarWidth: Number.isFinite(sidebarWidth)
         ? clamp(sidebarWidth, SIDEBAR_MIN, SIDEBAR_MAX)
         : initialState.settings.sidebarWidth,
@@ -264,8 +287,14 @@ function normalizeState(saved: AppState | null | undefined): AppState {
       deleteWithBackspace: savedSettings.deleteWithBackspace !== false,
       confirmBeforeDelete: savedSettings.confirmBeforeDelete !== false,
       exportFormat,
-      fontFamily: normalizeFontFamily(savedSettings.fontFamily, defaultFont),
-      fontFamilySource: savedSettings.fontFamilySource === "user" ? "user" : "installer",
+      chineseFontFamily: normalizeChineseFont(
+        savedSettings.chineseFontFamily ?? legacyFontFamily,
+        initialState.settings.chineseFontFamily,
+      ),
+      englishFontFamily: normalizeEnglishFont(
+        savedSettings.englishFontFamily ?? legacyFontFamily,
+        initialState.settings.englishFontFamily,
+      ),
       uiLanguage: savedSettings.uiLanguage === "en" ? "en" : "zh",
       uiLanguageSource: savedSettings.uiLanguageSource === "user" ? "user" : "installer",
       installerLanguage,
@@ -310,12 +339,12 @@ function escapeHtml(value: string) {
   })[character] ?? character);
 }
 
-function buildExportHtml(title: string, markup: string, baseFontFamily = fonts[0].family, language: UiLanguage = "zh") {
+function buildExportHtml(title: string, markup: string, baseFontFamily = combinedFontFamily("kaiti", "times"), language: UiLanguage = "zh") {
   return `<!doctype html><html lang="${language === "en" ? "en" : "zh-CN"}"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>${katexExportStyles}</style><style>
     @page{size:A4;margin:14mm}
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:#fff}
-    body{font-family:${contentFontFamily(baseFontFamily)};color:#202521;line-height:1.75;font-size:19px;overflow-wrap:anywhere;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    body{font-family:${baseFontFamily};color:#202521;line-height:1.75;font-size:19px;overflow-wrap:anywhere;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .export-document{padding:32px 48px 64px}
     h1,h2,h3,h4,h5{line-height:1.35;break-after:avoid-page}h1{font-size:32px}h2{font-size:29px}h3{font-size:24px}h4{font-size:21px}h5{font-size:20px}
     p,ul,ol,blockquote,pre,table{margin:0 0 1em}ul,ol{padding-left:1.55em}li:has(.katex){padding-block:.35em}strong{font-weight:900}em{font-style:oblique 14deg}u{text-decoration-line:underline;text-decoration-thickness:1px;text-underline-offset:2px}
@@ -1051,7 +1080,10 @@ export default function App() {
     ? clamp(activeMatchIndex, 0, findMatches.length - 1)
     : -1;
   const activeFindMatch = displayedMatchIndex >= 0 ? findMatches[displayedMatchIndex] : null;
-  const selectedFont = fonts.find((font) => font.id === state.settings.fontFamily) ?? fonts[0];
+  const selectedAppFontFamily = combinedFontFamily(
+    state.settings.chineseFontFamily,
+    state.settings.englishFontFamily,
+  );
   const openExternalLink = useCallback((url: string | undefined) => {
     const safeUrl = externalHttpUrl(url);
     if (!safeUrl) return;
@@ -1161,8 +1193,8 @@ export default function App() {
   }, [findOpen, state.settings.sidebarCollapsed, state.settings.sidebarWidth]);
 
   const shellStyle = {
-    "--app-font": selectedFont.family,
-    "--content-font": contentFontFamily(selectedFont.family),
+    "--app-font": selectedAppFontFamily,
+    "--content-font": selectedAppFontFamily,
     "--surface-alpha": `${state.settings.opacity}%`,
     "--sidebar-width": `${state.settings.sidebarWidth}px`,
   } as CSSProperties;
@@ -1396,7 +1428,6 @@ export default function App() {
         ...current.settings,
         [key]: value,
         ...(key === "uiLanguage" ? { uiLanguageSource: "user" as const } : {}),
-        ...(key === "fontFamily" ? { fontFamilySource: "user" as const } : {}),
       },
     }));
   }
@@ -1445,7 +1476,7 @@ export default function App() {
     const request: ExportRequest = {
       format: state.settings.exportFormat,
       title: selected.title || fallbackTitle,
-      html: buildExportHtml(selected.title || fallbackTitle, markup, selectedFont.family, language),
+      html: buildExportHtml(selected.title || fallbackTitle, markup, selectedAppFontFamily, language),
       markdown: buildPortableMarkdown(hydratedMarkdown, assets),
       latex: buildLatex(selected.title || fallbackTitle, hydratedMarkdown, assets),
       assets,
@@ -2127,13 +2158,23 @@ export default function App() {
                       <input type="checkbox" checked={state.settings.launchAtLogin} onChange={toggleLaunchAtLogin} />
                     </label>
                     <label className="settings-field">
-                      <span><strong>{ui("字体", "Font")}</strong><small>{ui("便签与界面文字", "Notes and interface text")}</small></span>
+                      <span><strong>{ui("中文字体", "Chinese font")}</strong><small>{ui("中文文字使用的字体", "Font used for Chinese text")}</small></span>
                       <select
-                        aria-label={ui("字体", "Font")}
-                        value={state.settings.fontFamily}
-                        onChange={(event) => updateSetting("fontFamily", event.target.value as AppFont)}
+                        aria-label={ui("中文字体", "Chinese font")}
+                        value={state.settings.chineseFontFamily}
+                        onChange={(event) => updateSetting("chineseFontFamily", event.target.value as ChineseFont)}
                       >
-                        {fonts.map((font) => <option key={font.id} value={font.id}>{language === "en" ? font.labelEn : font.label}</option>)}
+                        {chineseFonts.map((font) => <option key={font.id} value={font.id}>{language === "en" ? font.labelEn : font.label}</option>)}
+                      </select>
+                    </label>
+                    <label className="settings-field">
+                      <span><strong>{ui("英文字体", "English font")}</strong><small>{ui("英文文字使用的字体", "Font used for English text")}</small></span>
+                      <select
+                        aria-label={ui("英文字体", "English font")}
+                        value={state.settings.englishFontFamily}
+                        onChange={(event) => updateSetting("englishFontFamily", event.target.value as EnglishFont)}
+                      >
+                        {englishFonts.map((font) => <option key={font.id} value={font.id}>{font.labelEn}</option>)}
                       </select>
                     </label>
                     <label className="settings-field opacity-field">

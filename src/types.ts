@@ -1,10 +1,11 @@
 export type NoteColor = "paper";
-export type AppFont = "simsun" | "kaiti" | "fangsong" | "simhei" | "times" | "segoe" | "arial" | "verdana";
+export type ChineseFont = "simsun" | "kaiti" | "fangsong" | "simhei";
+export type EnglishFont = "times" | "segoe" | "arial" | "verdana";
+export type AppFont = ChineseFont | EnglishFont;
 export type BodyFontSize = "small1" | "second" | "small2" | "third" | "small3" | "fourth" | "small4" | "fifth";
 export type ExportFormat = "pdf" | "word" | "latex" | "html" | "markdown";
 export type UiLanguage = "zh" | "en";
 export type UiLanguageSource = "installer" | "user";
-export type FontFamilySource = "installer" | "user";
 
 export interface Note {
   id: string;
@@ -38,8 +39,8 @@ export interface AppState {
     sidebarCollapsed: boolean;
     sidebarWidth: number;
     opacity: number;
-    fontFamily: AppFont;
-    fontFamilySource: FontFamilySource;
+    chineseFontFamily: ChineseFont;
+    englishFontFamily: EnglishFont;
     deleteWithBackspace: boolean;
     confirmBeforeDelete: boolean;
     exportFormat: ExportFormat;

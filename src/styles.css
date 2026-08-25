@@ -15,8 +15,8 @@ button { color: inherit; }
   --surface-alpha: 92%;
   --sidebar-width: 294px;
   --body-font-size: 19px;
-  --app-font: KaiTi, "楷体", serif;
-  --content-font: KaiTi, "楷体", serif;
+  --app-font: "Times New Roman", KaiTi, "楷体", serif;
+  --content-font: "Times New Roman", KaiTi, "楷体", serif;
   width: 100%;
   height: 100%;
   font-family: var(--app-font);

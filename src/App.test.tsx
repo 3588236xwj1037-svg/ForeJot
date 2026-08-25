@@ -21,8 +21,8 @@ const savedState = {
     sidebarCollapsed: false,
     sidebarWidth: 294,
     opacity: 92,
-    fontFamily: "kaiti",
-    fontFamilySource: "installer",
+    chineseFontFamily: "kaiti",
+    englishFontFamily: "times",
   },
 } as unknown as AppState;
 
@@ -298,31 +298,70 @@ describe("App", () => {
     expect(window.desktop.toggleMaximize).toHaveBeenCalledOnce();
   });
 
-  it("persists font and background opacity preferences", async () => {
+  it("keeps Chinese and English font preferences independent", async () => {
     render(<App />);
 
     const shell = document.querySelector(".app-shell") as HTMLElement;
     await screen.findByDisplayValue("今天要做的事");
     expect(shell.style.getPropertyValue("--app-font")).toContain("KaiTi");
-    expect(shell.style.getPropertyValue("--content-font")).toBe('KaiTi, "楷体", serif');
+    expect(shell.style.getPropertyValue("--content-font")).toBe('"Times New Roman", KaiTi, "楷体", serif');
 
     fireEvent.click(await screen.findByRole("button", { name: /偏好设置/ }));
-    const fontPreference = screen.getByRole("combobox", { name: "字体" });
-    expect(within(fontPreference).queryByRole("option", { name: "系统默认（楷体）" })).not.toBeInTheDocument();
-    expect(within(fontPreference).getByRole("option", { name: "楷体" })).toBeInTheDocument();
-    expect(within(fontPreference).getByRole("option", { name: "仿宋" })).toBeInTheDocument();
-    expect(within(fontPreference).getByRole("option", { name: "黑体" })).toBeInTheDocument();
-    fireEvent.change(fontPreference, { target: { value: "fangsong" } });
+    const chineseFontPreference = screen.getByRole("combobox", { name: "中文字体" });
+    const englishFontPreference = screen.getByRole("combobox", { name: "英文字体" });
+    expect(within(chineseFontPreference).queryByRole("option", { name: "系统默认（楷体）" })).not.toBeInTheDocument();
+    expect(within(chineseFontPreference).getByRole("option", { name: "楷体" })).toBeInTheDocument();
+    expect(within(chineseFontPreference).getByRole("option", { name: "仿宋" })).toBeInTheDocument();
+    expect(within(chineseFontPreference).getByRole("option", { name: "黑体" })).toBeInTheDocument();
+    expect(within(englishFontPreference).getByRole("option", { name: "Times New Roman" })).toBeInTheDocument();
+    expect(within(englishFontPreference).getByRole("option", { name: "Arial" })).toBeInTheDocument();
+    fireEvent.change(chineseFontPreference, { target: { value: "simsun" } });
+
+    await waitFor(() => {
+      const latest = vi.mocked(window.desktop!.saveState).mock.calls.at(-1)?.[0];
+      expect(latest?.settings.chineseFontFamily).toBe("simsun");
+      expect(latest?.settings.englishFontFamily).toBe("times");
+    });
+    expect(shell.style.getPropertyValue("--content-font")).toBe('"Times New Roman", SimSun, "宋体", serif');
+
+    fireEvent.change(englishFontPreference, { target: { value: "arial" } });
     fireEvent.change(screen.getByRole("slider", { name: "背景透明度" }), { target: { value: "75" } });
 
     await waitFor(() => {
       const latest = vi.mocked(window.desktop!.saveState).mock.calls.at(-1)?.[0];
-      expect(latest?.settings.fontFamily).toBe("fangsong");
+      expect(latest?.settings.chineseFontFamily).toBe("simsun");
+      expect(latest?.settings.englishFontFamily).toBe("arial");
       expect(latest?.settings.opacity).toBe(75);
     });
     expect(shell.style.getPropertyValue("--surface-alpha")).toBe("75%");
-    expect(shell.style.getPropertyValue("--app-font")).toContain("FangSong");
-    expect(shell.style.getPropertyValue("--content-font")).toBe('FangSong, "仿宋", serif');
+    expect(shell.style.getPropertyValue("--app-font")).toBe('Arial, SimSun, "宋体", sans-serif');
+    expect(shell.style.getPropertyValue("--content-font")).toBe('Arial, SimSun, "宋体", sans-serif');
+  });
+
+  it("migrates a legacy single-font preference without affecting the other script", async () => {
+    const legacyState = {
+      ...savedState,
+      settings: {
+        alwaysOnTop: true,
+        launchAtLogin: false,
+        sidebarCollapsed: false,
+        sidebarWidth: 294,
+        opacity: 92,
+        fontFamily: "fangsong",
+        fontFamilySource: "user",
+      },
+    } as unknown as AppState;
+    vi.mocked(window.desktop!.loadState).mockResolvedValueOnce(legacyState);
+
+    render(<App />);
+
+    await screen.findByDisplayValue("今天要做的事");
+    await waitFor(() => {
+      const latest = vi.mocked(window.desktop!.saveState).mock.calls.at(-1)?.[0];
+      expect(latest?.settings.chineseFontFamily).toBe("fangsong");
+      expect(latest?.settings.englishFontFamily).toBe("times");
+      expect(latest?.settings).not.toHaveProperty("fontFamily");
+    });
   });
 
   it("shows confirmation when the Delete or Backspace shortcut is pressed", async () => {
@@ -585,7 +624,7 @@ describe("App", () => {
     expect(request?.html).toContain("<em>斜体</em>");
     expect(request?.html).toContain("<u>下划线</u>");
     expect(request?.html).toContain('<main class="export-document">');
-    expect(request?.html).toContain('body{font-family:KaiTi, "楷体", serif');
+    expect(request?.html).toContain('body{font-family:"Times New Roman", KaiTi, "楷体", serif');
     expect(request?.html).toContain(".export-document{padding:32px 48px 64px}");
     expect(request?.html).toContain("@media (max-width:640px){.export-document{padding:24px 20px 40px}}");
     expect(request?.html).toContain("@media print{html,body{width:auto;min-width:0}.export-document{padding:0}");

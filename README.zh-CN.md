@@ -2,7 +2,7 @@
 
 > ForeJot（驻笺）是一款本地优先、始终置顶的 Windows Markdown 桌面便签，适合把当下需要反复查看和快速补写的内容留在眼前。
 
-[English](README.md) | [1.0.0 Release Notes](docs/RELEASE_NOTES_1.0.0.md) | [中文发布说明](docs/RELEASE_NOTES_1.0.0.zh-CN.md)
+[English](README.md) | [1.0.1 Release Notes](docs/RELEASE_NOTES_1.0.1.md) | [中文发布说明](docs/RELEASE_NOTES_1.0.1.zh-CN.md)
 
 ![ForeJot（驻笺）公式预览](docs/screenshot.zh-CN.png)
 
@@ -37,7 +37,7 @@ ForeJot（驻笺）不发布跨产品的内存占用对比数据。Electron 的�
 
 ## 快速开始
 
-1. 从 [GitHub Releases](../../releases/latest) 下载并运行 `ForeJot Setup 1.0.0.exe`。
+1. 从 [GitHub Releases](../../releases/latest) 下载并运行 `ForeJot Setup 1.0.1.exe`。
 2. 在安装程序中选择中文或 English。选择会决定首次启动的界面语言与默认字体。
 3. 点击“新建便签”，或在 Windows 任意位置按 <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>N</kbd>。
 4. 在“编辑”中输入 Markdown；需要查看排版效果时切换到“预览”。
@@ -143,11 +143,11 @@ KaTeX 会在预览和适用的导出格式中渲染结果。KaTeX 支持标准 L
 
 ## 安装与语言
 
-从 [GitHub Releases](../../releases/latest) 下载 `ForeJot Setup 1.0.0.exe`。安装开始前会显示中文和 English 选择。
+从 [GitHub Releases](../../releases/latest) 下载 `ForeJot Setup 1.0.1.exe`。安装开始前会显示中文和 English 选择。
 
 - 中文 Windows 默认选择中文，软件显示“驻笺”。
 - 其他语言 Windows 默认选择 English，软件显示 ForeJot。
-- 安装时的选择决定首次启动的界面和默认字体：中文为楷体，English 为 Times New Roman。
+- 无论安装时选择中文或 English，中文字体和英文字体均彼此独立：中文默认楷体，英文默认 Times New Roman；修改其中一项不会影响另一项。
 - 安装完成后，仍可在“设置 > 界面语言”中随时切换中文或 English。用户在软件中主动修改的选择会在升级后保留。
 
 系统要求：Windows 10/11 64 位。安装包尚未使用商业代码签名证书，Windows SmartScreen 可能提示未知发布者；请仅从项目发布页下载，并核对发布页的校验值。
@@ -206,7 +206,7 @@ docs/       发布教程、发布前清单和版本说明
 
 - 贡献代码或报告问题前，请阅读 [贡献指南](CONTRIBUTING.md)。
 - 涉及漏洞、私人便签或敏感信息时，请按 [安全策略](SECURITY.md) 使用私密报告，不要创建公开 Issue。
-- 历史变更见 [CHANGELOG.md](CHANGELOG.md)，当前版本的发布信息见 [1.0.0 发布说明](docs/RELEASE_NOTES_1.0.0.md)。
+- 历史变更见 [CHANGELOG.md](CHANGELOG.md)，当前版本的发布信息见 [1.0.1 发布说明](docs/RELEASE_NOTES_1.0.1.md)。
 
 ## License
 
