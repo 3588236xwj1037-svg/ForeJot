@@ -41,7 +41,7 @@
     "concurrently": "10.0.4",
     "electron": "43.3.0",
     "electron-builder": "26.15.3",
-    "jsdom": "27.4.0",
+    "jsdom": "30.0.1",
     "resedit": "1.7.2",
     "typescript": "7.0.2",
     "vitest": "4.1.10",
