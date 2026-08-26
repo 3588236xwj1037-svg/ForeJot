@@ -41,7 +41,7 @@ jobs:
         run: npm test
 
       - name: Build installer
-        run: npm run dist
+        run: npm run dist:ci
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2

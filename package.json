@@ -13,6 +13,7 @@
     "check:public": "node scripts/check-publication.cjs",
     "preview": "vite preview --host 127.0.0.1",
     "dist": "npm run build && electron-builder --win nsis",
+    "dist:ci": "npm run build && electron-builder --win nsis --publish never",
     "qa:formula": "npm run build && electron scripts/qa-formula.cjs",
     "test": "vitest run"
   },
