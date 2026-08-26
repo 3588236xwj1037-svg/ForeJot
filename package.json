@@ -20,7 +20,7 @@
   "dependencies": {
     "@vitejs/plugin-react": "6.0.5",
     "katex": "0.16.47",
-    "lucide-react": "1.28.0",
+    "lucide-react": "1.31.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-markdown": "^10.1.0",
